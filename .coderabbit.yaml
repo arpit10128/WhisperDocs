@@ -1,0 +1,6 @@
+reviews:
+  path_filters:
+    - "!**/.agents/**"
+    - "!**/skills-lock.json"
+    - "!**/.next/**"
+    - "!**/node_modules/**"
