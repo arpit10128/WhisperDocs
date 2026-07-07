@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -12,6 +18,7 @@ const navItems = [
 
 const Navbar = () => {
   const pathName = usePathname();
+  const { isLoaded, isSignedIn, user } = useUser();
 
   return (
     <header className="w-full fixed z-50 bg-('--bg-primary')">
@@ -45,6 +52,37 @@ const Navbar = () => {
               </Link>
             );
           })}
+
+          <div className="flex items-center gap-3">
+            {!isLoaded ? null : isSignedIn ? (
+              <div className="flex gap-7.5 items-center">
+                <div className="nav-user-link">
+                  <UserButton />
+                  {user?.firstName && (
+                    <Link
+                      href={"/subscriptions"}
+                      className="nav-user-name"
+                    >
+                      {user.firstName}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                <SignInButton mode="modal">
+                  <button className="rounded-full border border-black px-4 py-2 text-sm font-medium transition hover:bg-black hover:text-white">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </>
+            )}
+          </div>
         </nav>
       </div>
     </header>
