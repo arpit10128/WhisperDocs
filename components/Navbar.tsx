@@ -21,7 +21,12 @@ const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
 
   return (
-    <header className="w-full fixed z-50 bg-('--bg-primary')">
+    <header
+      className="w-full fixed z-50 bg-('--bg-primary') bg-[#F0F6FF]/40
+    backdrop-blur-xl
+    border-b border-white/30
+    "
+    >
       <div className="wrapper navbar-height py-4 flex justify-between items-center">
         <Link
           href={"/"}
@@ -75,11 +80,6 @@ const Navbar = () => {
                     Sign In
                   </button>
                 </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
-                    Sign Up
-                  </button>
-                </SignUpButton>
               </>
             )}
           </div>
