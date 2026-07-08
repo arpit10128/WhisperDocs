@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const HeroSection = () => {
   return (
-    <section className="wrapper mb-10 md:mb-16 mt-20 md:mt-20">
+    <section className="wrapper mb-10 md:mb-16">
       <div className="library-hero-card">
         <div className="library-hero-content">
           {/* Left part */}
