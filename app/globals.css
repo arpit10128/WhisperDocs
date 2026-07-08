@@ -517,11 +517,11 @@
     @apply hidden lg:flex items-center justify-center flex-1 max-w-[400px];
   }
   .library-cta-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-white text-[var(--text-primary)] px-5 py-3 rounded-[10px] font-bold text-base md:text-xl transition-all w-full lg:w-fit;
+    @apply inline-flex items-center justify-center gap-2 bg-(--color-brand) text-white px-5 py-3 rounded-[10px] font-bold text-base md:text-xl transition-all w-full sm:w-fit;
     font-family: "IBM Plex Serif", serif;
 
     &:hover {
-      @apply bg-gray-50;
+      @apply bg-(--color-brand-hover);
       box-shadow: var(--shadow-soft);
     }
   }
@@ -546,10 +546,17 @@
     list-style: none;
   }
   .library-step-number {
-    @apply w-8 h-8 min-w-8 min-h-8 rounded-full bg-[#F0F8FF] border border-[var(--text-primary)] text-[var(--text-primary)] flex items-center justify-center font-semibold text-sm;
+    @apply w-8 h-8 min-w-8 min-h-8 rounded-full bg-[#1C1E21] border border-[#1C1E21] text-white flex items-center justify-center font-semibold text-sm;
   }
   .library-step-title {
-    @apply font-semibold text-base text-[#222c37] leading-6;
+    @apply text-base font-semibold text-[#1C1E21] mb-1;
+    font-family: "IBM Plex Serif", serif;
+  }
+  .library-step-desc {
+    @apply text-sm text-[#65676B] leading-5;
+  }
+  .library-hero-steps-card {
+    @apply bg-white rounded-[20px] p-5 shadow-[0_20px_50px_rgba(1,35,106,0.08)];
   }
   .library-step-description {
     @apply font-normal text-sm text-[#222c37] leading-5;
