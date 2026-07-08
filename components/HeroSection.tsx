@@ -14,7 +14,7 @@ const HeroSection = () => {
             </h1>
             <p className="library-hero-description">
               Your PDFs are now conversations.
-              Conversationalize any documen instantly. Read
+              Conversationalize any document instantly. Read
               with your voice, listen to answers, and learn
               interactively.
             </p>
