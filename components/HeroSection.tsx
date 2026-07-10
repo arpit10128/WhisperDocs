@@ -101,7 +101,7 @@ const HeroSection = () => {
                 <div>
                   <Image
                     src={"/assets/convTrans.png"}
-                    alt="pdf"
+                    alt="conversation"
                     width={110}
                     height={110}
                     className="object-contain"
@@ -125,7 +125,7 @@ const HeroSection = () => {
                 <div>
                   <Image
                     src={"/assets/headphoneTrans.png"}
-                    alt="pdf"
+                    alt="headphone"
                     width={70}
                     height={70}
                     className="object-contain"

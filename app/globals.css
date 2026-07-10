@@ -725,7 +725,7 @@
     @apply text-[#777] text-sm mt-1;
   }
   .upload-dropzone-remove {
-    @apply flex items-center justify-center w-6 h-6 text-red-500 transition-colors cursor-pointer;
+    @apply flex items-center justify-center w-10 h-10 text-red-500 transition-colors cursor-pointer;
 
     &:hover {
       @apply text-red-600;
