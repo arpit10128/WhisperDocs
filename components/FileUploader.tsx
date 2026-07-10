@@ -81,7 +81,7 @@ const FileUploader = <T extends FieldValues>({
               onClick={onRemove}
               className="upload-dropzone-remove inline-flex items-center justify-center rounded-full bg-slate-100 p-2 text-slate-700 transition hover:bg-slate-200"
             >
-              <X className="h-4 w-4" />
+              <X className="h-8 w-8" />
             </button>
           </div>
         ) : (
