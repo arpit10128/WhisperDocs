@@ -154,10 +154,10 @@ const UploadForm = () => {
                 />
                 <FieldError
                   errors={
-                    form.formState.errors.title && [
+                    form.formState.errors.author && [
                       {
                         message:
-                          form.formState.errors.title
+                          form.formState.errors.author
                             .message,
                       },
                     ]
@@ -185,10 +185,10 @@ const UploadForm = () => {
                 />
                 <FieldError
                   errors={
-                    form.formState.errors.title && [
+                    form.formState.errors.persona && [
                       {
                         message:
-                          form.formState.errors.title
+                          form.formState.errors.persona
                             .message,
                       },
                     ]
