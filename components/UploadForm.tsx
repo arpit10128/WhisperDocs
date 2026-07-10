@@ -54,7 +54,6 @@ const UploadForm = () => {
   const onSumbit = async (data: BookUploadFormValues) => {
     if (!userId)
       return toast.error("Please login to upload PDFs");
-    console.log(data);
     //simulate submission
     await new Promise((resolve) =>
       setTimeout(resolve, 3000),
@@ -149,6 +148,7 @@ const UploadForm = () => {
                       className="form-input"
                       id="author"
                       placeholder="ex: Robert C Martin"
+                      disabled={isSubmitting}
                     />
                   )}
                 />
