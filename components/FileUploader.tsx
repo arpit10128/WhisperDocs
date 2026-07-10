@@ -53,9 +53,9 @@ const FileUploader = <T extends FieldValues>({
       </label>
       <div
         className={cn(
-          "upload-dropzone cursor-pointer rounded-xl border-2 border-dashed border-[#8B7355]/20 bg-white px-4 py-8 text-center transition hover:border-[#8B7355]",
+          "upload-dropzone cursor-pointer rounded-xl border-2 border-dashed border-[#000000]/20 bg-white px-4 py-8 text-center transition hover:border-[#000000]",
           isUploaded &&
-            "upload-dropzone-uploaded border-solid border-[#8B7355]/40",
+            "upload-dropzone-uploaded border-solid border-[#000000]/40",
           disabled && "pointer-events-none opacity-70",
         )}
         onClick={() =>
@@ -86,7 +86,7 @@ const FileUploader = <T extends FieldValues>({
           </div>
         ) : (
           <>
-            <Icon className="mx-auto mb-3 h-8 w-8 text-[#8B7355]" />
+            <Icon className="mx-auto mb-3 h-8 w-8 text-[#1877F2]" />
             <p className="upload-dropzone-text text-sm font-medium text-slate-900">
               {placeholder}
             </p>

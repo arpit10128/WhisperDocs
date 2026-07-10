@@ -93,7 +93,7 @@ const UploadForm = () => {
             <FileUploader
               control={form.control}
               name="coverImage"
-              label="cover Image (Optional)"
+              label="Cover Image (Optional)"
               acceptTypes={ACCEPTED_IMAGE_TYPES}
               icon={ImageIcon}
               placeholder="Click to upload cover image"
