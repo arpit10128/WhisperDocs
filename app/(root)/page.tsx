@@ -1,9 +1,10 @@
 import HeroSection from "@/components/HeroSection";
-import React from "react";
-import { sampleBooks } from "@/lib/constants";
 import BookCard from "@/components/BookCard";
+import { getAllPdf } from "@/lib/action/pdf.actions";
 
-const page = () => {
+const page = async () => {
+  const pdfResults = await getAllPdf();
+  const pdfs = pdfResults.success && Array.isArray(pdfResults.data) ? pdfResults.data : [];
   return (
     <main className="wrapper container">
       <div>
@@ -11,13 +12,13 @@ const page = () => {
       </div>
 
       <div className="library-books-grid">
-        {sampleBooks.map((book) => (
+        {pdfs.map((pdf) => (
           <BookCard
-            key={book._id}
-            title={book.title}
-            author={book.author}
-            coverURL={book.coverURL}
-            slug={book.slug}
+            key={pdf._id}
+            title={pdf.title}
+            author={pdf.author}
+            coverURL={pdf.coverURL}
+            slug={pdf.slug}
           />
         ))}
       </div>

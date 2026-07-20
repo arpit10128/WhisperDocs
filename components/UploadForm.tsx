@@ -5,7 +5,7 @@ import { BookUploadFormValues } from "@/types";
 import { useAuth } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import LoadingOverlay from "./LoadingOverlay";
@@ -25,16 +25,19 @@ import { Input } from "./ui/input";
 import { Controller } from "react-hook-form";
 import VoiceSelector from "./VoiceSelector";
 import { Button } from "./ui/button";
+import {
+  checkPdfExists,
+  createPdf,
+  savePdfSegments,
+} from "@/lib/action/pdf.actions";
+import { useRouter } from "next/navigation";
+import { parsePDFFile } from "@/lib/utils";
+import { upload } from "@vercel/blob/client";
 
 const UploadForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const { userId } = useAuth();
-  //   const router = useRouter();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const router = useRouter();
 
   //useForm<Input, Context, Output>()
   const form = useForm<BookUploadFormValues>({
@@ -51,17 +54,116 @@ const UploadForm = () => {
     },
   });
 
-  const onSumbit = async (data: BookUploadFormValues) => {
+  const onSubmit = async (data: BookUploadFormValues) => {
     if (!userId)
       return toast.error("Please login to upload PDFs");
-    //simulate submission
-    await new Promise((resolve) =>
-      setTimeout(resolve, 3000),
-    );
-    setIsSubmitting(true);
-  };
 
-  if (!isMounted) return null;
+    setIsSubmitting(true);
+
+    try {
+      const existscheck = await checkPdfExists(data.title);
+
+      if (existscheck.success && existscheck.data) {
+        toast.info(
+          "PDF with the same title already exists.",
+        );
+        form.reset();
+        router.push(`pdfs/${existscheck.data.slug}`);
+        return;
+      }
+
+      const fileTitle = data.title
+        .replace(/\s+/g, "-")
+        .toLowerCase();
+
+      const pdfFile = data.pdfFile;
+
+      const parsePDF = await parsePDFFile(pdfFile);
+
+      if (parsePDF.content.length === 0) {
+        toast.error(
+          "Failed to parse PDF. Please try again with a different file.",
+        );
+        return;
+      }
+
+      const uploadedPdfBlob = await upload(
+        fileTitle,
+        pdfFile,
+        {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+          contentType: "application/pdf",
+        },
+      );
+
+      let coverUrl: string;
+
+      if (data.coverImage) {
+        const coverFile = data.coverImage;
+        const uploadedCoverBlob = await upload(
+          `${fileTitle}_cover.png`,
+          coverFile,
+          {
+            access: "public",
+            handleUploadUrl: "/api/upload",
+            contentType: coverFile.type,
+          },
+        );
+        coverUrl = uploadedCoverBlob.url;
+      } else {
+        const response = await fetch(parsePDF.cover);
+
+        const blob = await response.blob();
+
+        const uploadedCoverBlob = await upload(
+          `${fileTitle}_cover.png`,
+          blob,
+          {
+            access: "public",
+            handleUploadUrl: "/api/upload",
+            contentType: "image/png",
+          },
+        );
+        coverUrl = uploadedCoverBlob.url;
+      }
+
+      const pdf = await createPdf({
+        clerkId: userId,
+        title: data.title,
+        author: data.author,
+        persona: data.persona,
+        fileURL: uploadedPdfBlob.url,
+        fileBlobKey: uploadedPdfBlob.pathname,
+        coverURL: coverUrl,
+        fileSize: pdfFile.size,
+      });
+
+      if (!pdf.success)
+        throw new Error("Failed to create PDF.");
+
+      const segments = await savePdfSegments(
+        pdf.data._id,
+        userId,
+        parsePDF.content,
+      );
+
+      if (!segments) {
+        toast.error("Failed to save pdf segments");
+        throw new Error("Failed to save pdf segments");
+      }
+
+      form.reset();
+      router.push("/");
+    } catch (e) {
+      console.error(e);
+      toast.error(
+        "Failed to upload Pdf. Please try again later",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div>
@@ -73,7 +175,7 @@ const UploadForm = () => {
       <div className="new-book-wrapper">
         <Field>
           <form
-            onSubmit={form.handleSubmit(onSumbit)}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8"
           >
             {/* 1. PDF File Upload */}
