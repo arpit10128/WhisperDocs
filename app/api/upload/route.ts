@@ -9,9 +9,8 @@ import { NextResponse } from "next/server";
 export async function POST(
   request: Request,
 ): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
-
   try {
+    const body = (await request.json()) as HandleUploadBody;
     const jsonResponse = await handleUpload({
       body,
       request,
@@ -55,8 +54,11 @@ export async function POST(
     const status = message.includes("Unauthorized")
       ? 401
       : 500;
+    console.error("Upload error", e);
+    const clientMessage =
+      status === 401 ? "Unauthorized" : "Upload failed";
     return NextResponse.json(
-      { error: message },
+      { error: clientMessage },
       { status },
     );
   }
