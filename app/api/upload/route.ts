@@ -38,10 +38,10 @@ export async function POST(
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         console.log("File uploaded to blob: " + blob.url);
 
-        const payload = tokenPayload
-          ? JSON.parse(tokenPayload)
-          : null;
-        const userId = payload.userId;
+        if (!tokenPayload) return;
+
+        const { userId } = JSON.parse(tokenPayload);
+        // TODO: use userId if this callback should do more than log
       },
     });
 
@@ -50,7 +50,7 @@ export async function POST(
     const message =
       e instanceof Error
         ? e.message
-        : "An unkown error occured";
+        : "An unknown error occured";
     const status = message.includes("Unauthorized")
       ? 401
       : 500;

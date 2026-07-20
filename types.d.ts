@@ -80,7 +80,6 @@ export interface IVoiceSession extends Document {
 }
 
 export interface CreatePdf {
-  clerkId: string;
   title: string;
   author: string;
   persona?: string;

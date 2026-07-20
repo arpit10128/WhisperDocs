@@ -5,6 +5,7 @@ import { CreatePdf, TextSegment } from "@/types";
 import { generateSlug, serializeData } from "../utils";
 import PdfModel from "@/database/models/pdf.model";
 import PdfSegmentModel from "@/database/models/bookSegment.model";
+import { auth } from "@clerk/nextjs/server";
 
 export const getAllPdf = async () => {
   try {
@@ -63,6 +64,15 @@ export const createPdf = async (data: CreatePdf) => {
   try {
     await connectToDatabase();
 
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     const existsResult = await checkPdfExists(data.title);
     if (existsResult.alreadyExists) {
       return existsResult;
@@ -73,6 +83,7 @@ export const createPdf = async (data: CreatePdf) => {
 
     const pdf = await PdfModel.create({
       ...data,
+      clerkId: userId,
       slug,
       totalSegments: 0,
     });
@@ -93,17 +104,25 @@ export const createPdf = async (data: CreatePdf) => {
 
 export const savePdfSegments = async (
   pdfId: string,
-  clerkId: string,
   segments: TextSegment[],
 ) => {
   try {
     await connectToDatabase();
 
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     console.log("saving pdf segments...");
 
     const segmentsToInsert = segments.map(
       ({ text, segmentIndex, pageNumber, wordCount }) => ({
-        clerkId,
+        clerkId: userId,
         pdfId,
         content: text,
         segmentIndex,

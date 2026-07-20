@@ -33,6 +33,7 @@ import {
 import { useRouter } from "next/navigation";
 import { parsePDFFile } from "@/lib/utils";
 import { upload } from "@vercel/blob/client";
+import { PutBlobResult } from "@vercel/blob";
 
 const UploadForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,6 +61,9 @@ const UploadForm = () => {
 
     setIsSubmitting(true);
 
+    let uploadedPdfBlob: PutBlobResult | undefined;
+    let coverUrl: string | undefined;
+
     try {
       const existscheck = await checkPdfExists(data.title);
 
@@ -68,7 +72,7 @@ const UploadForm = () => {
           "PDF with the same title already exists.",
         );
         form.reset();
-        router.push(`pdfs/${existscheck.data.slug}`);
+        router.push(`/pdfs/${existscheck.data.slug}`);
         return;
       }
 
@@ -87,17 +91,11 @@ const UploadForm = () => {
         return;
       }
 
-      const uploadedPdfBlob = await upload(
-        fileTitle,
-        pdfFile,
-        {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-          contentType: "application/pdf",
-        },
-      );
-
-      let coverUrl: string;
+      uploadedPdfBlob = await upload(fileTitle, pdfFile, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+        contentType: "application/pdf",
+      });
 
       if (data.coverImage) {
         const coverFile = data.coverImage;
@@ -129,12 +127,11 @@ const UploadForm = () => {
       }
 
       const pdf = await createPdf({
-        clerkId: userId,
         title: data.title,
         author: data.author,
         persona: data.persona,
-        fileURL: uploadedPdfBlob.url,
-        fileBlobKey: uploadedPdfBlob.pathname,
+        fileURL: uploadedPdfBlob!.url,
+        fileBlobKey: uploadedPdfBlob!.pathname,
         coverURL: coverUrl,
         fileSize: pdfFile.size,
       });
@@ -144,22 +141,56 @@ const UploadForm = () => {
 
       const segments = await savePdfSegments(
         pdf.data._id,
-        userId,
         parsePDF.content,
       );
 
       if (!segments) {
-        toast.error("Failed to save pdf segments");
         throw new Error("Failed to save pdf segments");
       }
 
       form.reset();
       router.push("/");
+
+      return {
+        uploadedPdfBlob,
+        coverUrl,
+      };
     } catch (e) {
       console.error(e);
       toast.error(
         "Failed to upload Pdf. Please try again later",
       );
+      if (uploadedPdfBlob?.url) {
+        try {
+          const response = await fetch("/api/blob", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              urlOrPathname: uploadedPdfBlob.url,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response
+              .json()
+              .catch(() => ({}));
+            throw new Error(
+              errorData.error || "Blob cleanup failed",
+            );
+          }
+
+          console.log(
+            "Orphaned blob successfully deleted.",
+          );
+        } catch (deleteError) {
+          console.error(
+            "Failed to delete orphaned blob:",
+            deleteError,
+          );
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }

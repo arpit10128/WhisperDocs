@@ -126,14 +126,23 @@ export async function parsePDFFile(file: File) {
   // Read file as ArrayBuffer
   const arrayBuffer = await file.arrayBuffer();
 
-  // Load PDF
-  const loadingTask = pdfjsLib.getDocument({
-    data: arrayBuffer,
-  });
-
-  const pdfDocument = await loadingTask.promise;
+  let loadingTask:
+    | ReturnType<typeof pdfjsLib.getDocument>
+    | undefined;
+  let pdfDocument:
+    | Awaited<
+        ReturnType<typeof pdfjsLib.getDocument>["promise"]
+      >
+    | undefined;
 
   try {
+    // Load PDF
+    loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer,
+    });
+
+    pdfDocument = await loadingTask.promise;
+
     if (pdfDocument.numPages === 0) {
       throw new Error("PDF contains no pages.");
     }
@@ -201,7 +210,12 @@ export async function parsePDFFile(file: File) {
     );
   } finally {
     // Always clean up resources
-    pdfDocument.cleanup();
-    loadingTask.destroy();
+    if (pdfDocument) {
+      pdfDocument.cleanup();
+    }
+
+    if (loadingTask) {
+      loadingTask.destroy();
+    }
   }
 }
