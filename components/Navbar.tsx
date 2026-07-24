@@ -22,7 +22,7 @@ const Navbar = () => {
 
   return (
     <header
-      className="w-full fixed z-50 bg-('--bg-primary') bg-[#F0F6FF]/40
+      className="w-full fixed z-50 bg-(--bg-primary) bg-[#F0F6FF]/40
     backdrop-blur-xl
     border-b border-white/30
     "

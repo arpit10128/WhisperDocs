@@ -6,6 +6,8 @@ import {
   FieldValues,
 } from "react-hook-form";
 import { LucideIcon } from "lucide-react";
+import { Document, Types } from "mongoose";
+import { createBlobFile } from "./lib/action/pdf.actions";
 
 interface BookCardProps {
   title: string;
@@ -36,4 +38,72 @@ export interface FileUploadFieldProps<
   icon: LucideIcon;
   placeholder: string;
   hint: string;
+}
+
+export interface BlobFile extends Document {
+  _id: Types.ObjectId;
+  pdfId: Types.ObjectId;
+  coverUrl: string;
+  pdfUrl: string;
+  ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IPdf extends Document {
+  _id: string;
+  clerkId: string;
+  title: string;
+  slug: string;
+  author: string;
+  persona?: string;
+  fileURL: string;
+  fileBlobKey: string;
+  coverURL: string;
+  coverBlobKey?: string;
+  fileSize: number;
+  totalSegments: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IPdfSegment extends Document {
+  clerkId: string;
+  pdfId: Types.ObjectId;
+  content: string;
+  segmentIndex: number;
+  pageNumber?: number;
+  wordCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IVoiceSession extends Document {
+  _id: string;
+  clerkId: string;
+  pdfId: Types.ObjectId;
+  startedAt: Date;
+  endedAt?: Date;
+  durationSeconds: number;
+  billingPeriodStart: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreatePdf {
+  title: string;
+  author: string;
+  persona?: string;
+  fileURL: string;
+  fileBlobKey: string;
+  coverURL?: string;
+  coverBlobKey?: string;
+  fileSize: number;
+}
+
+export interface TextSegment {
+  text: string;
+  segmentIndex: number;
+  pageNumber?: number;
+  wordCount: number;
 }
