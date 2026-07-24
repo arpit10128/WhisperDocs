@@ -10,9 +10,18 @@ import BlobModel from "@/database/models/blobModels";
 
 export const getAllPdf = async () => {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     await connectToDatabase();
 
-    const pdfs = await PdfModel.find()
+    const pdfs = await PdfModel.find({ clerkId: userId })
       .sort({ createdAt: -1 })
       .lean();
 
@@ -30,12 +39,22 @@ export const getAllPdf = async () => {
 
 export const checkPdfExists = async (title: string) => {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     await connectToDatabase();
 
     const slug = generateSlug(title);
 
     const existingPdf = await PdfModel.findOne({
       slug,
+      clerkId: userId,
     }).lean();
 
     if (existingPdf) {

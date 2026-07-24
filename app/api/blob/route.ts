@@ -52,10 +52,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Keep the database records intact if Blob storage is unavailable, so the
-    // same request can be retried without losing the URLs required for cleanup.
-    await del([blobUser.coverUrl, blobUser.pdfUrl]);
-
     const session = await database.startSession();
     try {
       await session.withTransaction(async () => {
@@ -68,11 +64,17 @@ export async function DELETE(request: Request) {
           await PdfSegmentModel.deleteMany({
             pdfId: blobUser.pdfId,
           }).session(session);
-          await PdfModel.deleteOne({ _id: pdf._id }).session(session);
+          await PdfModel.deleteOne({
+            _id: pdf._id,
+          }).session(session);
         }
 
-        await BlobModel.deleteOne({ _id: blobUser._id }).session(session);
+        await BlobModel.deleteOne({
+          _id: blobUser._id,
+        }).session(session);
       });
+
+      await del([blobUser.coverUrl, blobUser.pdfUrl]);
     } finally {
       await session.endSession();
     }
