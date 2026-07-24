@@ -47,6 +47,7 @@ const FileUploader = <T extends FieldValues>({
   const isUploaded = !!value;
 
   return (
+    //Todo: Make the upload trigger keyboard accessible.
     <div className="w-full">
       <label className="form-label mb-2 block text-sm font-medium text-slate-900">
         {label}

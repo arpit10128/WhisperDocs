@@ -6,6 +6,7 @@ import { generateSlug, serializeData } from "../utils";
 import PdfModel from "@/database/models/pdf.model";
 import PdfSegmentModel from "@/database/models/bookSegment.model";
 import { auth } from "@clerk/nextjs/server";
+import BlobModel from "@/database/models/blobModels";
 
 export const getAllPdf = async () => {
   try {
@@ -152,6 +153,59 @@ export const savePdfSegments = async (
 
     console.log(
       "Deleted pdf segments and PDF due to failure saving segments",
+    );
+
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
+
+export const createBlobFile = async (pdfId: string) => {
+  try {
+    await connectToDatabase();
+
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
+    const pdf = await PdfModel.findOne({
+      _id: pdfId,
+      clerkId: userId,
+    });
+
+    if (pdf === null) {
+      return {
+        success: false,
+        error: "Forbidden",
+      };
+    }
+
+    const blobFiles = await BlobModel.create({
+      pdfId: pdf._id,
+      coverUrl: pdf.coverURL,
+      pdfUrl: pdf.fileURL,
+      ownerId: userId,
+    });
+
+    return {
+      success: true,
+      data: serializeData(blobFiles),
+    };
+  } catch (e) {
+    console.error("Error creating a blob file", e);
+
+    await PdfSegmentModel.deleteMany({ pdfId });
+    await PdfModel.findByIdAndDelete(pdfId);
+
+    console.log(
+      "Rolled back PDF and segments because blob metadata creation failed.",
     );
 
     return {

@@ -14,7 +14,7 @@ export async function POST(
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async () => {
+      onBeforeGenerateToken: async (pathname) => {
         const { userId } = await auth();
 
         if (!userId) {
@@ -33,6 +33,7 @@ export async function POST(
           addRandomSuffix: true,
           maximumSizeInBytes: MAX_FILE_SIZE,
           tokenPayload: JSON.stringify({ userId }),
+          pathname: `users/${userId}/${pathname}`,
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {

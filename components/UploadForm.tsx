@@ -27,13 +27,14 @@ import VoiceSelector from "./VoiceSelector";
 import { Button } from "./ui/button";
 import {
   checkPdfExists,
+  createBlobFile,
   createPdf,
   savePdfSegments,
 } from "@/lib/action/pdf.actions";
 import { useRouter } from "next/navigation";
 import { parsePDFFile } from "@/lib/utils";
 import { upload } from "@vercel/blob/client";
-import { PutBlobResult } from "@vercel/blob";
+import { del, PutBlobResult } from "@vercel/blob";
 
 const UploadForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -148,6 +149,14 @@ const UploadForm = () => {
         throw new Error("Failed to save pdf segments");
       }
 
+      const blobFileDetail = await createBlobFile(
+        pdf.data._id,
+      );
+
+      if (!blobFileDetail) {
+        throw new Error("Failed to save blob file details");
+      }
+
       form.reset();
       router.push("/");
 
@@ -162,32 +171,45 @@ const UploadForm = () => {
       );
       if (uploadedPdfBlob?.url) {
         try {
-          const response = await fetch("/api/blob", {
+          const res = await fetch("/api/blob-orphaned", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              urlOrPathname: uploadedPdfBlob.url,
+              urlOrPathname: uploadedPdfBlob?.url,
             }),
           });
 
-          if (!response.ok) {
-            const errorData = await response
-              .json()
-              .catch(() => ({}));
-            throw new Error(
-              errorData.error || "Blob cleanup failed",
-            );
+          if (!res.ok) {
+            console.error(await res.json());
           }
-
-          console.log(
-            "Orphaned blob successfully deleted.",
-          );
-        } catch (deleteError) {
+        } catch (cleanupErr) {
           console.error(
-            "Failed to delete orphaned blob:",
-            deleteError,
+            "Cleanup request failed:",
+            cleanupErr,
+          );
+        }
+      }
+      if (coverUrl) {
+        try {
+          const res = await fetch("/api/blob-orphaned", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              urlOrPathname: coverUrl,
+            }),
+          });
+
+          if (!res.ok) {
+            console.error(await res.json());
+          }
+        } catch (cleanupErr) {
+          console.error(
+            "Cleanup request failed:",
+            cleanupErr,
           );
         }
       }

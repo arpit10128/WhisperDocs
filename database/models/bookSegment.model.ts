@@ -7,7 +7,7 @@ const PdfSegmentSchema = new Schema<IPdfSegment>(
     pdfId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "BookModel",
+      ref: "PdfModel",
       index: true,
     },
     content: { type: String, required: true },

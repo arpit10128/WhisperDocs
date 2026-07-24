@@ -7,6 +7,7 @@ import {
 } from "react-hook-form";
 import { LucideIcon } from "lucide-react";
 import { Document, Types } from "mongoose";
+import { createBlobFile } from "./lib/action/pdf.actions";
 
 interface BookCardProps {
   title: string;
@@ -37,6 +38,16 @@ export interface FileUploadFieldProps<
   icon: LucideIcon;
   placeholder: string;
   hint: string;
+}
+
+export interface BlobFile extends Document {
+  _id: Types.ObjectId;
+  pdfId: Types.ObjectId;
+  coverUrl: string;
+  pdfUrl: string;
+  ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IPdf extends Document {
