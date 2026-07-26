@@ -80,6 +80,38 @@ export const checkPdfExists = async (title: string) => {
   }
 };
 
+export const getPdfBySlug = async (slug: string) => {
+  try {
+    await connectToDatabase();
+
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauuthorized",
+      };
+    }
+
+    const pdf = await PdfModel.findOne({ slug }).lean();
+
+    if (!pdf) {
+      return { success: false, error: "Book not found" };
+    }
+
+    return {
+      success: true,
+      data: serializeData(pdf),
+    };
+  } catch (e) {
+    console.error("Error fetching book by slug", e);
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
+
 export const createPdf = async (data: CreatePdf) => {
   try {
     await connectToDatabase();
