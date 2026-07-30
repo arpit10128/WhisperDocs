@@ -582,22 +582,25 @@
   }
   .transcript-messages {
     @apply flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 flex-1 overflow-y-auto scroll-smooth;
-
-    /* Custom scrollbar */
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: #d4c4a8;
-      border-radius: 3px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-      background: #c4b498;
-    }
   }
+
+  .transcript-messages::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .transcript-messages::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .transcript-messages::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+
+  .transcript-messages::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
   .transcript-message {
     @apply animate-in fade-in slide-in-from-bottom-2 duration-300;
   }

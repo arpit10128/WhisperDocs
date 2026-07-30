@@ -4,7 +4,7 @@ import { connectToDatabase } from "@/database/mongoose";
 import { CreatePdf, TextSegment } from "@/types";
 import { generateSlug, serializeData } from "../utils";
 import PdfModel from "@/database/models/pdf.model";
-import PdfSegmentModel from "@/database/models/bookSegment.model";
+import PdfSegmentModel from "@/database/models/pdfSegment.model";
 import { auth } from "@clerk/nextjs/server";
 import BlobModel from "@/database/models/blobModels";
 

@@ -1,6 +1,6 @@
 import BlobModel from "@/database/models/blobModels";
 import PdfModel from "@/database/models/pdf.model";
-import PdfSegmentModel from "@/database/models/bookSegment.model";
+import PdfSegmentModel from "@/database/models/pdfSegment.model";
 import { connectToDatabase } from "@/database/mongoose";
 import { auth } from "@clerk/nextjs/server";
 import { del } from "@vercel/blob";
