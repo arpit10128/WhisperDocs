@@ -210,13 +210,12 @@ export const useVapi = (pdf: IPdf) => {
 
           //Instead of using the current messages variable, React gives you the latest state as prev.
           setMessages((prev) => {
-            //checking whether the same message already exists.
-            //Sometimes Vapi may emit the same final transcript more than once
-            const isDupe = prev.some(
-              (m) =>
-                m.role === message.role &&
-                m.content === message.transcript,
-            );
+            //Vapi may emit the same final transcript more than once in a row.
+            //Only the immediately previous message can be that repeat.
+            const last = prev[prev.length - 1];
+            const isDupe =
+              last?.role === message.role &&
+              last?.content === message.transcript;
 
             return isDupe
               ? prev
