@@ -107,3 +107,30 @@ export interface TextSegment {
   pageNumber?: number;
   wordCount: number;
 }
+
+export interface Messages {
+  role: string;
+  content: string;
+}
+
+export interface SessionCheckResult {
+  allowed: boolean;
+  currentCount: number;
+  limit: number;
+  plan: PlanType;
+  maxDurationMinutes: number;
+  error?: string;
+}
+
+export interface StartSessionResult {
+  success: boolean;
+  sessionId?: string;
+  maxDurationMinutes?: number;
+  error?: string;
+  isBillingError?: boolean;
+}
+
+export interface EndSessionResult {
+  success: boolean;
+  error?: string;
+}

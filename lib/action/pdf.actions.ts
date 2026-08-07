@@ -4,7 +4,7 @@ import { connectToDatabase } from "@/database/mongoose";
 import { CreatePdf, TextSegment } from "@/types";
 import { generateSlug, serializeData } from "../utils";
 import PdfModel from "@/database/models/pdf.model";
-import PdfSegmentModel from "@/database/models/bookSegment.model";
+import PdfSegmentModel from "@/database/models/pdfSegment.model";
 import { auth } from "@clerk/nextjs/server";
 import BlobModel from "@/database/models/blobModels";
 
@@ -73,6 +73,38 @@ export const checkPdfExists = async (title: string) => {
   } catch (e) {
     console.error("Error checking if PDF exists", e);
 
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
+
+export const getPdfBySlug = async (slug: string) => {
+  try {
+    await connectToDatabase();
+
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauuthorized",
+      };
+    }
+
+    const pdf = await PdfModel.findOne({ slug }).lean();
+
+    if (!pdf) {
+      return { success: false, error: "Book not found" };
+    }
+
+    return {
+      success: true,
+      data: serializeData(pdf),
+    };
+  } catch (e) {
+    console.error("Error fetching book by slug", e);
     return {
       success: false,
       error: e,

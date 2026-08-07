@@ -7,7 +7,7 @@ const VoiceSessionSchema = new Schema<IVoiceSession>(
     pdfId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "BookModel",
+      ref: "PdfModel",
     },
     startedAt: {
       type: Date,
@@ -34,11 +34,8 @@ VoiceSessionSchema.index({
   billingPeriodStart: 1,
 });
 
-const VoiceSessionModel =
-  models.VoiceSessionModel ||
-  model<IVoiceSession>(
-    "VoiceSessionModel",
-    VoiceSessionSchema,
-  );
+const VoiceSession =
+  models.VoiceSession ||
+  model<IVoiceSession>("VoiceSession", VoiceSessionSchema);
 
-export default VoiceSessionModel;
+export default VoiceSession;
