@@ -27,7 +27,7 @@ describe("Voice session integration", () => {
 
     process.env.MONGODB_URI = mongo.getUri();
 
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(mongo.getUri());
   });
 
   beforeEach(async () => {
