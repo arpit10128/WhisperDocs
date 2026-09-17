@@ -65,8 +65,8 @@ export const endVoiceSession = async (
     }
 
     const session = await VoiceSession.findOne({
-      sessionId,
-      userId,
+      _id: sessionId,
+      clerkId: userId,
     });
 
     if (!session) {
@@ -80,7 +80,9 @@ export const endVoiceSession = async (
       sessionId,
       {
         endedAt: new Date(),
-        durationSeconds: session.durationSeconds,
+        durationSeconds: Math.floor(
+          (Date.now() - session.startedAt.getTime()) / 1000,
+        ),
       },
     );
 
