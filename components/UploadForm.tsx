@@ -145,7 +145,7 @@ const UploadForm = () => {
         parsePDF.content,
       );
 
-      if (!segments) {
+      if (!segments.success) {
         throw new Error("Failed to save pdf segments");
       }
 
@@ -153,7 +153,7 @@ const UploadForm = () => {
         pdf.data._id,
       );
 
-      if (!blobFileDetail) {
+      if (!blobFileDetail.success) {
         throw new Error("Failed to save blob file details");
       }
 
