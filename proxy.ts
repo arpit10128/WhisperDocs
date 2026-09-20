@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/api/vapi/(.*)", // Vapi calls this server-to-server; no Clerk session exists.
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
