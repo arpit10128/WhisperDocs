@@ -89,11 +89,14 @@ export const getPdfBySlug = async (slug: string) => {
     if (!userId) {
       return {
         success: false,
-        error: "Unauuthorized",
+        error: "Unauthorized",
       };
     }
 
-    const pdf = await PdfModel.findOne({ slug }).lean();
+    const pdf = await PdfModel.findOne({
+      slug,
+      clerkId: userId,
+    }).lean();
 
     if (!pdf) {
       return { success: false, error: "Book not found" };
@@ -107,7 +110,8 @@ export const getPdfBySlug = async (slug: string) => {
     console.error("Error fetching book by slug", e);
     return {
       success: false,
-      error: e,
+      error:
+        e instanceof Error ? e.message : "Unknown error",
     };
   }
 };
