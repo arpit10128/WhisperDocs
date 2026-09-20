@@ -8,7 +8,6 @@ const PdfSchema = new Schema<IPdf>(
     slug: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -23,6 +22,8 @@ const PdfSchema = new Schema<IPdf>(
   },
   { timestamps: true },
 );
+
+PdfSchema.index({ clerkId: 1, slug: 1 }, { unique: true });
 
 const PdfModel =
   models.PdfModel || model<IPdf>("PdfModel", PdfSchema);
