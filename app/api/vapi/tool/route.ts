@@ -120,7 +120,7 @@ async function searchDocument(
     return "I couldn't search the document because the document identifier was missing or invalid.";
   }
 
-  if (pdfId !== authorizedPdfId) {
+  if (pdfId && pdfId !== authorizedPdfId) {
     return "I couldn't search the document because the document identifier was unauthorized.";
   }
 
