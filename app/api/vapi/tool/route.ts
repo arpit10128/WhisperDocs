@@ -172,17 +172,17 @@ async function searchDocument(
             ? ` (page ${segment.pageNumber})`
             : "";
 
-        const snippet =
+        const snippet = (
           segment.content.length > MAX_SNIPPET_LENGTH
-            ? `${segment.content.slice(
-                0,
-                MAX_SNIPPET_LENGTH,
-              )}...`
-            : segment.content;
+            ? `${segment.content.slice(0, MAX_SNIPPET_LENGTH)}...`
+            : segment.content
+        )
+          .replace(/\s+/g, " ")
+          .trim();
 
-        return `Excerpt ${index + 1}${pageInfo}:\n${snippet}`;
+        return `Excerpt ${index + 1}${pageInfo}: ${snippet}`;
       })
-      .join("\n\n");
+      .join(" ");
   } catch (error) {
     console.error(
       "Error running $text search over pdf segments",
