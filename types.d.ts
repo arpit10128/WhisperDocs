@@ -113,18 +113,19 @@ export interface Messages {
   content: string;
 }
 
-export interface SessionCheckResult {
-  allowed: boolean;
-  currentCount: number;
-  limit: number;
-  plan: PlanType;
-  maxDurationMinutes: number;
-  error?: string;
-}
+// export interface SessionCheckResult {
+//   allowed: boolean;
+//   currentCount: number;
+//   limit: number;
+//   plan: PlanType;
+//   maxDurationMinutes: number;
+//   error?: string;
+// }
 
 export interface StartSessionResult {
   success: boolean;
   sessionId?: string;
+  documentAccessToken?: string;
   maxDurationMinutes?: number;
   error?: string;
   isBillingError?: boolean;

@@ -8,6 +8,8 @@ import {
 } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 import { getCurrentBillingPeriodStart } from "../subscription-constants";
+import { createVapiDocumentToken } from "../vapi-auth";
+import PdfModel from "@/database/models/pdf.model";
 
 export const startVoiceSession = async (
   pdfId: string,
@@ -24,6 +26,18 @@ export const startVoiceSession = async (
       };
     }
 
+    const pdf = await PdfModel.findOne({
+      _id: pdfId,
+      clerkId: userId,
+    }).lean();
+
+    if (!pdf) {
+      return {
+        success: false,
+        error: "Forbidden action.",
+      };
+    }
+
     //Limits/Plan to see whether session is allowed
 
     const session = await VoiceSession.create({
@@ -37,6 +51,10 @@ export const startVoiceSession = async (
     return {
       success: true,
       sessionId: session._id.toString(),
+      documentAccessToken: createVapiDocumentToken(
+        pdfId,
+        userId,
+      ),
       //maxDurationMinutes: check.maxDurationMinutes,
     };
   } catch (e) {
