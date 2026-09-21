@@ -60,6 +60,7 @@ describe("POST /api/vapi/tool", () => {
     vi.clearAllMocks();
 
     process.env.VAPI_SERVER_SECRET = "test-secret";
+    process.env.VAPI_DOCUMENT_TOKEN_SECRET = "test-secret";
   });
 
   it("returns 401 when the Vapi secret is invalid", async () => {

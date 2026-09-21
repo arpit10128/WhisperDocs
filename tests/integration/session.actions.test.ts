@@ -47,6 +47,7 @@ describe("Voice session integration", () => {
       fileSize: 1,
     });
     process.env.VAPI_SERVER_SECRET = "test-secret";
+    process.env.VAPI_DOCUMENT_TOKEN_SECRET = "test-secret";
   });
 
   afterAll(async () => {

@@ -7,10 +7,12 @@ interface VapiDocumentToken {
 }
 
 function getSigningSecret(): string {
-  const secret = process.env.VAPI_SERVER_SECRET;
+  const secret = process.env.VAPI_DOCUMENT_TOKEN_SECRET;
 
   if (!secret) {
-    throw new Error("VAPI_SERVER_SECRET is not configured");
+    throw new Error(
+      "VAPI_DOCUMENT_TOKEN_SECRET is not configured",
+    );
   }
 
   return secret;
