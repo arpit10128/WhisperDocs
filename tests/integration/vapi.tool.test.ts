@@ -520,6 +520,65 @@ describe("POST /api/vapi/tool", () => {
     );
   });
 
+  it("uses the authorized pdfId when the tool call omits pdfId", async () => {
+    mocks.mockFind.mockReturnValue({
+      sort: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue([
+        {
+          content: "Unit 3 covers wave functions and operators.",
+          pageNumber: 21,
+        },
+      ]),
+    });
+
+    const request = new Request(
+      "http://localhost/api/vapi/tool",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-vapi-secret": "test-secret",
+        },
+        body: JSON.stringify({
+          message: withDocumentAccess({
+            type: "tool-calls",
+            toolCallList: [
+              {
+                id: "call-missing-pdf-id",
+                name: "searchDocument",
+                arguments: {
+                  query: "topics covered in Unit 3",
+                },
+              },
+            ],
+          }),
+        }),
+      },
+    );
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(mocks.mockFind).toHaveBeenCalledWith(
+      {
+        pdfId: "507f1f77bcf86cd799439011",
+        $text: {
+          $search: "topics covered in Unit 3",
+        },
+      },
+      {
+        score: {
+          $meta: "textScore",
+        },
+      },
+    );
+    expect(body.results[0].result).toContain(
+      "Unit 3 covers wave functions and operators.",
+    );
+  });
+
   it("rejects a tool pdfId that differs from authorized call metadata", async () => {
     const request = new Request(
       "http://localhost/api/vapi/tool",
