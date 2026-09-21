@@ -1,23 +1,78 @@
 import { connectToDatabase } from "@/database/mongoose";
 import PdfSegmentModel from "@/database/models/pdfSegment.model";
+import { verifyVapiDocumentToken } from "@/lib/vapi-auth";
 import { NextResponse } from "next/server";
 import { Types } from "mongoose";
+import { z } from "zod";
 
 const MAX_RESULTS = 5;
 const MAX_SNIPPET_LENGTH = 800;
+const MAX_TOOL_CALLS = 20;
+const MAX_TOOL_CALL_ID_LENGTH = 256;
+const MAX_TOOL_NAME_LENGTH = 100;
+const MAX_QUERY_LENGTH = 2_000;
+const MAX_IDENTIFIER_LENGTH = 256;
+const MAX_ACCESS_TOKEN_LENGTH = 4_096;
 
-interface VapiToolCall {
-  id: string;
-  name: string;
-  arguments?: Record<string, unknown>;
-}
+const boundedString = (max: number) => z.string().max(max);
 
-interface VapiToolCallsBody {
-  message?: {
-    type?: string;
-    toolCallList?: VapiToolCall[];
-  };
-}
+const vapiToolCallsBodySchema = z.object({
+  message: z
+    .object({
+      type: boundedString(100).optional(),
+      call: z
+        .object({
+          artifact: z
+            .object({
+              variableValues: z
+                .object({
+                  documentAccessToken: boundedString(
+                    MAX_ACCESS_TOKEN_LENGTH,
+                  ).optional(),
+                })
+                .optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+      toolCallList: z
+        .array(
+          z.object({
+            id: boundedString(MAX_TOOL_CALL_ID_LENGTH).min(
+              1,
+            ),
+            name: boundedString(MAX_TOOL_NAME_LENGTH).min(
+              1,
+            ),
+            arguments: z
+              .object({
+                query: boundedString(
+                  MAX_QUERY_LENGTH,
+                ).optional(),
+                q: boundedString(
+                  MAX_QUERY_LENGTH,
+                ).optional(),
+                question: boundedString(
+                  MAX_QUERY_LENGTH,
+                ).optional(),
+                pdfId: boundedString(
+                  MAX_IDENTIFIER_LENGTH,
+                ).optional(),
+                documentId: boundedString(
+                  MAX_IDENTIFIER_LENGTH,
+                ).optional(),
+                pdf_id: boundedString(
+                  MAX_IDENTIFIER_LENGTH,
+                ).optional(),
+              })
+              .optional(),
+          }),
+        )
+        .max(MAX_TOOL_CALLS)
+        .optional(),
+    })
+    .optional(),
+});
 
 interface ToolResult {
   toolCallId: string;
@@ -51,9 +106,22 @@ function getStringArg(
 async function searchDocument(
   query: string | undefined,
   pdfId: string | undefined,
+  documentAccessToken: string | undefined,
 ): Promise<string> {
-  if (!pdfId || !Types.ObjectId.isValid(pdfId)) {
+  const access = verifyVapiDocumentToken(
+    documentAccessToken,
+  );
+  const authorizedPdfId = access?.pdfId;
+
+  if (
+    !authorizedPdfId ||
+    !Types.ObjectId.isValid(authorizedPdfId)
+  ) {
     return "I couldn't search the document because the document identifier was missing or invalid.";
+  }
+
+  if (pdfId !== authorizedPdfId) {
+    return "I couldn't search the document because the document identifier was unauthorized.";
   }
 
   if (!query) {
@@ -65,7 +133,7 @@ async function searchDocument(
 
     const matches = await PdfSegmentModel.find(
       {
-        pdfId,
+        pdfId: authorizedPdfId,
         $text: { $search: query },
       },
       { score: { $meta: "textScore" } },
@@ -118,15 +186,17 @@ export async function POST(request: Request) {
       );
     }
   } else {
-    console.warn(
-      "VAPI_SERVER_SECRET is not set — /api/vapi/tool is unauthenticated.",
+    console.error("VAPI_SERVER_SECRET is not configured.");
+    return NextResponse.json(
+      { error: "Service unavailable" },
+      { status: 503 },
     );
   }
 
-  let body: VapiToolCallsBody;
+  let parsedBody: unknown;
 
   try {
-    body = await request.json();
+    parsedBody = await request.json();
   } catch {
     return NextResponse.json(
       { error: "Invalid JSON body" },
@@ -134,6 +204,16 @@ export async function POST(request: Request) {
     );
   }
 
+  const bodyResult =
+    vapiToolCallsBodySchema.safeParse(parsedBody);
+  if (!bodyResult.success) {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
+  }
+
+  const body = bodyResult.data;
   const toolCallList = body.message?.toolCallList ?? [];
 
   if (toolCallList.length === 0) {
@@ -166,8 +246,16 @@ export async function POST(request: Request) {
           "documentId",
           "pdf_id",
         );
+        const documentAccessToken = getStringArg(
+          body.message?.call?.artifact?.variableValues,
+          "documentAccessToken",
+        );
 
-        const result = await searchDocument(query, pdfId);
+        const result = await searchDocument(
+          query,
+          pdfId,
+          documentAccessToken,
+        );
 
         return { toolCallId: toolCall.id, result };
       },

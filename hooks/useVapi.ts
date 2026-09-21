@@ -358,7 +358,7 @@ export const useVapi = (pdf: IPdf) => {
         variableValues: {
           title: pdf.title,
           author: pdf.author,
-          pdfId: pdf._id,
+          documentAccessToken: res.documentAccessToken,
         },
         voice: {
           provider: "11labs" as const,

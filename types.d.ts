@@ -125,6 +125,7 @@ export interface Messages {
 export interface StartSessionResult {
   success: boolean;
   sessionId?: string;
+  documentAccessToken?: string;
   maxDurationMinutes?: number;
   error?: string;
   isBillingError?: boolean;

@@ -22,6 +22,38 @@ vi.mock("@/database/models/pdfSegment.model", () => ({
 }));
 
 import { POST } from "../../app/api/vapi/tool/route";
+import { createVapiDocumentToken } from "@/lib/vapi-auth";
+
+const pdfId = "507f1f77bcf86cd799439011";
+
+function withDocumentAccess(
+  message: Record<string, unknown>,
+) {
+  return {
+    ...message,
+    call: {
+      artifact: {
+        variableValues: {
+          documentAccessToken: createVapiDocumentToken(
+            pdfId,
+            "user_1",
+          ),
+        },
+      },
+    },
+  };
+}
+
+function createRequest(body: unknown) {
+  return new Request("http://localhost/api/vapi/tool", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-vapi-secret": "test-secret",
+    },
+    body: JSON.stringify(body),
+  });
+}
 
 describe("POST /api/vapi/tool", () => {
   beforeEach(() => {
@@ -88,6 +120,73 @@ describe("POST /api/vapi/tool", () => {
     });
   });
 
+  it.each([
+    ["null body", null],
+    ["non-object body", "tool-calls"],
+    [
+      "non-array toolCallList",
+      { message: { toolCallList: "call-1" } },
+    ],
+    [
+      "oversized query",
+      {
+        message: {
+          toolCallList: [
+            {
+              id: "call-1",
+              name: "searchDocument",
+              arguments: { query: "q".repeat(2_001) },
+            },
+          ],
+        },
+      },
+    ],
+    [
+      "oversized identifier",
+      {
+        message: {
+          toolCallList: [
+            {
+              id: "call-1",
+              name: "searchDocument",
+              arguments: { pdfId: "p".repeat(257) },
+            },
+          ],
+        },
+      },
+    ],
+  ])("returns 400 for %s", async (_description, body) => {
+    const response = await POST(createRequest(body));
+
+    expect(response.status).toBe(400);
+    expect(
+      mocks.mockConnectToDatabase,
+    ).not.toHaveBeenCalled();
+    expect(mocks.mockFind).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for an oversized toolCallList", async () => {
+    const response = await POST(
+      createRequest({
+        message: {
+          toolCallList: Array.from(
+            { length: 21 },
+            (_, index) => ({
+              id: `call-${index}`,
+              name: "searchDocument",
+            }),
+          ),
+        },
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(
+      mocks.mockConnectToDatabase,
+    ).not.toHaveBeenCalled();
+    expect(mocks.mockFind).not.toHaveBeenCalled();
+  });
+
   it("returns an empty result when there are no tool calls", async () => {
     const request = new Request(
       "http://localhost/api/vapi/tool",
@@ -142,7 +241,7 @@ describe("POST /api/vapi/tool", () => {
           "x-vapi-secret": "test-secret",
         },
         body: JSON.stringify({
-          message: {
+          message: withDocumentAccess({
             type: "tool-calls",
             toolCallList: [
               {
@@ -154,7 +253,7 @@ describe("POST /api/vapi/tool", () => {
                 },
               },
             ],
-          },
+          }),
         }),
       },
     );
@@ -214,7 +313,7 @@ describe("POST /api/vapi/tool", () => {
           "x-vapi-secret": "test-secret",
         },
         body: JSON.stringify({
-          message: {
+          message: withDocumentAccess({
             type: "tool-calls",
             toolCallList: [
               {
@@ -226,7 +325,7 @@ describe("POST /api/vapi/tool", () => {
                 },
               },
             ],
-          },
+          }),
         }),
       },
     );
@@ -301,7 +400,7 @@ describe("POST /api/vapi/tool", () => {
           "x-vapi-secret": "test-secret",
         },
         body: JSON.stringify({
-          message: {
+          message: withDocumentAccess({
             type: "tool-calls",
             toolCallList: [
               {
@@ -313,7 +412,7 @@ describe("POST /api/vapi/tool", () => {
                 },
               },
             ],
-          },
+          }),
         }),
       },
     );
@@ -364,7 +463,7 @@ describe("POST /api/vapi/tool", () => {
     expect(mocks.mockFind).not.toHaveBeenCalled();
   });
 
-  it("uses the pdfId supplied by Vapi static parameters", async () => {
+  it("uses the authorized pdfId from Vapi call metadata", async () => {
     mocks.mockFind.mockReturnValue({
       sort: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
@@ -386,7 +485,7 @@ describe("POST /api/vapi/tool", () => {
           "x-vapi-secret": "test-secret",
         },
         body: JSON.stringify({
-          message: {
+          message: withDocumentAccess({
             type: "tool-calls",
             toolCallList: [
               {
@@ -398,7 +497,7 @@ describe("POST /api/vapi/tool", () => {
                 },
               },
             ],
-          },
+          }),
         }),
       },
     );
@@ -417,6 +516,42 @@ describe("POST /api/vapi/tool", () => {
           $meta: "textScore",
         },
       },
+    );
+  });
+
+  it("rejects a tool pdfId that differs from authorized call metadata", async () => {
+    const request = new Request(
+      "http://localhost/api/vapi/tool",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-vapi-secret": "test-secret",
+        },
+        body: JSON.stringify({
+          message: withDocumentAccess({
+            type: "tool-calls",
+            toolCallList: [
+              {
+                id: "call-mismatch",
+                name: "searchDocument",
+                arguments: {
+                  query: "testing",
+                  pdfId: "507f191e810c19729de860ea",
+                },
+              },
+            ],
+          }),
+        }),
+      },
+    );
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(mocks.mockFind).not.toHaveBeenCalled();
+    expect(body.results[0].result).toContain(
+      "document identifier was unauthorized",
     );
   });
 });

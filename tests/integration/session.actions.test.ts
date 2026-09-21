@@ -9,6 +9,7 @@ import {
 } from "vitest";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import PdfModel from "@/database/models/pdf.model";
 
 const USER_ID = "test-user";
 const PDF_ID = new mongoose.Types.ObjectId().toString();
@@ -34,6 +35,18 @@ describe("Voice session integration", () => {
     await mongoose.connection
       .collection("voicesessions")
       .deleteMany({});
+    await PdfModel.deleteMany({});
+    await PdfModel.create({
+      _id: PDF_ID,
+      clerkId: USER_ID,
+      title: "Test PDF",
+      slug: "test-pdf",
+      author: "Test Author",
+      fileURL: "https://example.com/test.pdf",
+      fileBlobKey: "test.pdf",
+      fileSize: 1,
+    });
+    process.env.VAPI_SERVER_SECRET = "test-secret";
   });
 
   afterAll(async () => {
