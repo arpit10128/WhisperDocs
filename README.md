@@ -4,15 +4,15 @@ WhisperDocs is a voice-first AI platform that lets you upload PDFs and have natu
 
 ## ✨ Features
 
-- 📄 **PDF Upload & Processing** — Upload PDFs and extract their content directly in the browser.
-- 🎙️ **Voice Conversations** — Ask questions about your documents using your voice and receive spoken responses.
-- 🔎 **Document-Grounded Answers** — Retrieve relevant document content to provide context-aware responses.
-- 🔐 **Secure Authentication** — User authentication and session management with Clerk.
-- ☁️ **Cloud File Storage** — Store PDFs and cover images using Vercel Blob.
-- 🗄️ **Persistent Document Data** — Store document metadata, chunks, and voice sessions with MongoDB and Mongoose.
-- 🔒 **Secure Document Access** — HMAC-signed document tokens protect Vapi tool calls from unauthorized document access.
-- 🧹 **Failure Recovery** — Rollback and orphan-file cleanup prevent inconsistent database and storage state.
-- 📱 **Responsive Interface** — Built with Next.js, React, and Tailwind CSS for a responsive document experience.
+- 📄 **PDF Upload & Processing**: Upload PDFs and extract their content directly in the browser.
+- 🎙️ **Voice Conversations**: Ask questions about your documents using your voice and receive spoken responses.
+- 🔎 **Document-Grounded Answers**: Retrieve relevant document content to provide context-aware responses.
+- 🔐 **Secure Authentication**: User authentication and session management with Clerk.
+- ☁️ **Cloud File Storage**: Store PDFs and cover images using Vercel Blob.
+- 🗄️ **Persistent Document Data**: Store document metadata, chunks, and voice sessions with MongoDB and Mongoose.
+- 🔒 **Secure Document Access**: HMAC-signed document tokens protect Vapi tool calls from unauthorized document access.
+- 🧹 **Failure Recovery**: Rollback and orphan-file cleanup prevent inconsistent database and storage state.
+- 📱 **Responsive Interface**: Built with Next.js, React, and Tailwind CSS for a responsive document experience.
 
 ## 🛠️ Tech Stack
 
