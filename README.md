@@ -44,7 +44,7 @@ Follow the steps below to set up WhisperDocs locally.
 
 ### 1. Clone the Repository
 
-`git clone https://github.com/your-username/whisperdocs.git
+`git clone https://github.com/arpit10128/whisperdocs.git
 cd whisperdocs`
 
 ### 2. Install Dependencies
