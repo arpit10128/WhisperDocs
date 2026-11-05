@@ -14,7 +14,7 @@ const LoadingOverlay = () => {
           </h2>
           <p className="text-[#777] text-center max-w-xs">
             Please wait while we process your PDF and
-            prepare your interactive literary experience.
+            prepare your interactive experience.
           </p>
         </div>
       </div>

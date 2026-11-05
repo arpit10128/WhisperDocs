@@ -3,7 +3,7 @@ export const BRAND_COLOR = "#212a3b"; // Dark blue-gray
 export const BRAND_COLOR_HOVER = "#3d485e"; // Medium blue-gray
 
 // Sample books for the homepage (using Open Library covers)
-export const sampleBooks = [
+export const sampleDocuments = [
   {
     _id: "1",
     title: "Clean Code",
@@ -188,7 +188,7 @@ export const VAPI_DASHBOARD_CONFIG = {
   fillerInjectionEnabled: false,
 };
 
-// Clerk appearance overrides - Warm Literary Style
+// Clerk appearance overrides
 // Note: Tailwind requires static class names at build time, so we hardcode color values here
 export const CLERK_AUTH_APPEARANCE_OVERRIDE = {
   rootBox: "mx-auto",

@@ -9,7 +9,7 @@ import { LucideIcon } from "lucide-react";
 import { Document, Types } from "mongoose";
 import { createBlobFile } from "./lib/action/pdf.actions";
 
-interface BookCardProps {
+interface DocumentCardProps {
   title: string;
   author: string;
   coverURL: string;

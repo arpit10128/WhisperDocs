@@ -1,5 +1,5 @@
 import HeroSection from "@/components/HeroSection";
-import BookCard from "@/components/BookCard";
+import DocumentCard from "@/components/DocumentCard";
 import { getAllPdf } from "@/lib/action/pdf.actions";
 
 const page = async () => {
@@ -37,7 +37,7 @@ const page = async () => {
       ) : (
         <div className="library-books-grid">
           {pdfs.map((pdf) => (
-            <BookCard
+            <DocumentCard
               key={pdf._id}
               title={pdf.title}
               author={pdf.author}
